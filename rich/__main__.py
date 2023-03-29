@@ -266,7 +266,7 @@ Rich is maintained with [red]:heart:[/] by [link=https://www.textualize.io]Textu
         Panel.fit(
             message,
             box=box.ROUNDED,
-            padding=(1, 2),git config --global url.https://github.com/.insteadOf git://github.com/
+            padding=(1, 2),
             title="[b red]Capstone Project 2: Test",
             border_style="bright_blue",
         ),
