@@ -84,7 +84,7 @@ class Inspect(JupyterMixin):
     def _get_signature(self, name: str, obj: Any) -> Optional[Text]:
         """Get a signature for a callable."""
         try:
-            _signature = str(signature(obj)) + ":"
+            _signature = format_sig(signature(obj))
         except ValueError:
             _signature = "(...)"
         except TypeError:
@@ -268,3 +268,23 @@ def is_object_one_of_types(
         if type_name in fully_qualified_types_names:
             return True
     return False
+
+def format_sig(signature: signature) -> str:
+    string = str(signature)
+    string = string[0:1] + '\n\t'+ string[1:]
+    for i in range(len(string)):
+        if string[i] == ',':
+            if string[i-4] != '[':
+                string = string[0:i+1] + '\n\t' + string[i+2:]
+    for i in range(len(string)):
+        if string[i] == '-':
+            if string[i+1] == '>':
+                # at end
+                string = string[0:i-2] + '\n' + string[i-2:] + ':'
+                break
+        if i == len(string) - 1:
+            print('oof')
+            if string[i] == ')':
+                print('kerchoo')
+                string = string[0:i] + '\n' + string[i]
+    return string
