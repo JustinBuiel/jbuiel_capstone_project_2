@@ -283,8 +283,6 @@ def format_sig(signature: signature) -> str:
                 string = string[0:i-2] + '\n' + string[i-2:] + ':'
                 break
         if i == len(string) - 1:
-            print('oof')
             if string[i] == ')':
-                print('kerchoo')
                 string = string[0:i] + '\n' + string[i]
     return string
