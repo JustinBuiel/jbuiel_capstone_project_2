@@ -6,6 +6,7 @@ from types import ModuleType
 from typing import ClassVar, Iterable, List, Optional, Type, Union
 
 from rich._null_file import NullFile
+from rich.markdown import Link
 
 from . import get_console
 from ._log_render import FormatTimeCallable, LogRender
@@ -157,9 +158,19 @@ class RichHandler(Handler):
                 message = formatter.formatMessage(record)
 
         message_renderable = self.render_message(record, message)
-        log_renderable = self.render(
-            record=record, traceback=traceback, message_renderable=message_renderable
-        )
+        console = self.console or Console()
+        message = self.format(record)
+        message = message.rstrip()
+
+        # If URL found, replace with Link object
+        if ("https" in message):
+            message.replace(message, str(Link(message, message)))
+        else:
+            log_renderable = self.render(
+                record=record, traceback=traceback, message_renderable=message_renderable
+            )
+            console.print(message, style="blue", markup=True)
+
         if isinstance(self.console.file, NullFile):
             # Handles pythonw, where stdout/stderr are null, and we return NullFile
             # instance from Console.file. In this case, we still want to make a log record
