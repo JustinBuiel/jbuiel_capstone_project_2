@@ -4,6 +4,7 @@ import linecache
 import os
 import platform
 import sys
+import traceback
 from dataclasses import dataclass, field
 from traceback import walk_tb
 from types import ModuleType, TracebackType
@@ -46,20 +47,20 @@ LOCALS_MAX_STRING = 80
 
 
 def install(
-    *,
-    console: Optional[Console] = None,
-    width: Optional[int] = 100,
-    extra_lines: int = 3,
-    theme: Optional[str] = None,
-    word_wrap: bool = False,
-    show_locals: bool = False,
-    locals_max_length: int = LOCALS_MAX_LENGTH,
-    locals_max_string: int = LOCALS_MAX_STRING,
-    locals_hide_dunder: bool = True,
-    locals_hide_sunder: Optional[bool] = None,
-    indent_guides: bool = True,
-    suppress: Iterable[Union[str, ModuleType]] = (),
-    max_frames: int = 100,
+        *,
+        console: Optional[Console] = None,
+        width: Optional[int] = 100,
+        extra_lines: int = 3,
+        theme: Optional[str] = None,
+        word_wrap: bool = False,
+        show_locals: bool = False,
+        locals_max_length: int = LOCALS_MAX_LENGTH,
+        locals_max_string: int = LOCALS_MAX_STRING,
+        locals_hide_dunder: bool = True,
+        locals_hide_sunder: Optional[bool] = None,
+        indent_guides: bool = True,
+        suppress: Iterable[Union[str, ModuleType]] = (),
+        max_frames: int = 100,
 ) -> Callable[[Type[BaseException], BaseException, Optional[TracebackType]], Any]:
     """Install a rich traceback handler.
 
@@ -95,9 +96,9 @@ def install(
     )
 
     def excepthook(
-        type_: Type[BaseException],
-        value: BaseException,
-        traceback: Optional[TracebackType],
+            type_: Type[BaseException],
+            value: BaseException,
+            traceback: Optional[TracebackType],
     ) -> None:
         traceback_console.print(
             Traceback.from_exception(
@@ -119,6 +120,23 @@ def install(
             )
         )
 
+    def custom_exception_handler(exc_type, exc_value, exc_traceback):
+        """
+        Handle uncaught exceptions in a custom handler.
+        """
+        # Format the traceback using the rich library
+        tb = traceback.TracebackException.from_exception(exc_value, exc_traceback)
+        tb_str = "\n".join(tb.format(chain=True))
+
+        # Print the formatted traceback to the console using rich
+        console.print(tb_str, style="bold red")
+
+        # Call the default exception handler to print the traceback to stderr
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+    # Set the custom exception handler as the default handler for all threads
+    sys.excepthook = custom_exception_handler
+
     def ipy_excepthook_closure(ip: Any) -> None:  # pragma: no cover
         tb_data = {}  # store information about showtraceback call
         default_showtraceback = ip.showtraceback  # keep reference of default traceback
@@ -130,7 +148,7 @@ def install(
             default_showtraceback(*args, **kwargs)
 
         def ipy_display_traceback(
-            *args: Any, is_syntax: bool = False, **kwargs: Any
+                *args: Any, is_syntax: bool = False, **kwargs: Any
         ) -> None:
             """Internally called traceback from ip._showtraceback"""
             nonlocal tb_data
@@ -165,7 +183,7 @@ def install(
         ip = get_ipython()  # type: ignore[name-defined]
         ipy_excepthook_closure(ip)
         return sys.excepthook
-    except Exception:
+    except Exception:  # I think problem can be solved here
         # otherwise use default system hook
         old_excepthook = sys.excepthook
         sys.excepthook = excepthook
@@ -239,21 +257,21 @@ class Traceback:
     }
 
     def __init__(
-        self,
-        trace: Optional[Trace] = None,
-        *,
-        width: Optional[int] = 100,
-        extra_lines: int = 3,
-        theme: Optional[str] = None,
-        word_wrap: bool = False,
-        show_locals: bool = False,
-        locals_max_length: int = LOCALS_MAX_LENGTH,
-        locals_max_string: int = LOCALS_MAX_STRING,
-        locals_hide_dunder: bool = True,
-        locals_hide_sunder: bool = False,
-        indent_guides: bool = True,
-        suppress: Iterable[Union[str, ModuleType]] = (),
-        max_frames: int = 100,
+            self,
+            trace: Optional[Trace] = None,
+            *,
+            width: Optional[int] = 100,
+            extra_lines: int = 3,
+            theme: Optional[str] = None,
+            word_wrap: bool = False,
+            show_locals: bool = False,
+            locals_max_length: int = LOCALS_MAX_LENGTH,
+            locals_max_string: int = LOCALS_MAX_STRING,
+            locals_hide_dunder: bool = True,
+            locals_hide_sunder: bool = False,
+            indent_guides: bool = True,
+            suppress: Iterable[Union[str, ModuleType]] = (),
+            max_frames: int = 100,
     ):
         if trace is None:
             exc_type, exc_value, traceback = sys.exc_info()
@@ -280,7 +298,7 @@ class Traceback:
         for suppress_entity in suppress:
             if not isinstance(suppress_entity, str):
                 assert (
-                    suppress_entity.__file__ is not None
+                        suppress_entity.__file__ is not None
                 ), f"{suppress_entity!r} must be a module with '__file__' attribute"
                 path = os.path.dirname(suppress_entity.__file__)
             else:
@@ -291,23 +309,23 @@ class Traceback:
 
     @classmethod
     def from_exception(
-        cls,
-        exc_type: Type[Any],
-        exc_value: BaseException,
-        traceback: Optional[TracebackType],
-        *,
-        width: Optional[int] = 100,
-        extra_lines: int = 3,
-        theme: Optional[str] = None,
-        word_wrap: bool = False,
-        show_locals: bool = False,
-        locals_max_length: int = LOCALS_MAX_LENGTH,
-        locals_max_string: int = LOCALS_MAX_STRING,
-        locals_hide_dunder: bool = True,
-        locals_hide_sunder: bool = False,
-        indent_guides: bool = True,
-        suppress: Iterable[Union[str, ModuleType]] = (),
-        max_frames: int = 100,
+            cls,
+            exc_type: Type[Any],
+            exc_value: BaseException,
+            traceback: Optional[TracebackType],
+            *,
+            width: Optional[int] = 100,
+            extra_lines: int = 3,
+            theme: Optional[str] = None,
+            word_wrap: bool = False,
+            show_locals: bool = False,
+            locals_max_length: int = LOCALS_MAX_LENGTH,
+            locals_max_string: int = LOCALS_MAX_STRING,
+            locals_hide_dunder: bool = True,
+            locals_hide_sunder: bool = False,
+            indent_guides: bool = True,
+            suppress: Iterable[Union[str, ModuleType]] = (),
+            max_frames: int = 100,
     ) -> "Traceback":
         """Create a traceback from exception info
 
@@ -361,16 +379,16 @@ class Traceback:
 
     @classmethod
     def extract(
-        cls,
-        exc_type: Type[BaseException],
-        exc_value: BaseException,
-        traceback: Optional[TracebackType],
-        *,
-        show_locals: bool = False,
-        locals_max_length: int = LOCALS_MAX_LENGTH,
-        locals_max_string: int = LOCALS_MAX_STRING,
-        locals_hide_dunder: bool = True,
-        locals_hide_sunder: bool = False,
+            cls,
+            exc_type: Type[BaseException],
+            exc_value: BaseException,
+            traceback: Optional[TracebackType],
+            *,
+            show_locals: bool = False,
+            locals_max_length: int = LOCALS_MAX_LENGTH,
+            locals_max_string: int = LOCALS_MAX_STRING,
+            locals_hide_dunder: bool = True,
+            locals_hide_sunder: bool = False,
     ) -> Trace:
         """Extract traceback information.
 
@@ -421,7 +439,7 @@ class Traceback:
             append = stack.frames.append
 
             def get_locals(
-                iter_locals: Iterable[Tuple[str, object]]
+                    iter_locals: Iterable[Tuple[str, object]]
             ) -> Iterable[Tuple[str, object]]:
                 """Extract locals from an iterator of key pairs."""
                 if not (locals_hide_dunder or locals_hide_sunder):
@@ -485,7 +503,7 @@ class Traceback:
         return trace
 
     def __rich_console__(
-        self, console: Console, options: ConsoleOptions
+            self, console: Console, options: ConsoleOptions
     ) -> RenderResult:
         theme = self.theme
         background_style = theme.get_background_style()
@@ -726,9 +744,11 @@ if __name__ == "__main__":  # pragma: no cover
     console = Console()
     import sys
 
+
     def bar(a: Any) -> None:  # 这是对亚洲语言支持的测试。面对模棱两可的想法，拒绝猜测的诱惑
         one = 1
         print(one / a)
+
 
     def foo(a: Any) -> None:
         _rich_traceback_guard = True
@@ -743,6 +763,7 @@ if __name__ == "__main__":  # pragma: no cover
         }
         bar(a)
 
+
     def error() -> None:
 
         try:
@@ -752,5 +773,6 @@ if __name__ == "__main__":  # pragma: no cover
                 slfkjsldkfj  # type: ignore[name-defined]
         except:
             console.print_exception(show_locals=True)
+
 
     error()

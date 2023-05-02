@@ -4,6 +4,7 @@ import sys
 from typing import List
 
 import pytest
+import traceback
 
 from rich.console import Console
 from rich.theme import Theme
@@ -15,7 +16,6 @@ try:
     from ._exception_render import expected
 except ImportError:
     expected = None
-
 
 CAPTURED_EXCEPTION = 'Traceback (most recent call last):\n╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\n│ File "/Users/textualize/projects/rich/tests/test_traceback.py", line 26, in test_handler        │\n│    23     try:                                                                                   │\n│    24         old_handler = install(console=console, line_numbers=False)                         │\n│    25         try:                                                                               │\n│  ❱ 26             1 / 0                                                                          │\n│    27         except Exception:                                                                  │\n│    28             exc_type, exc_value, traceback = sys.exc_info()                                │\n│    29             sys.excepthook(exc_type, exc_value, traceback)                                 │\n╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\nZeroDivisionError: division by zero\n'
 
@@ -49,9 +49,9 @@ def test_handler():
                 "│" + (" " * 98) + "│",
             )
             for frame_start in re.finditer(
-                "^│ .+rich/tests/test_traceback.py:",
-                rendered_exception,
-                flags=re.MULTILINE,
+                    "^│ .+rich/tests/test_traceback.py:",
+                    rendered_exception,
+                    flags=re.MULTILINE,
             ):
                 frame_start_index = frame_start.start()
                 for preamble in frame_blank_line_possible_preambles:
@@ -311,16 +311,16 @@ def test_suppress():
 @pytest.mark.parametrize(
     "rich_traceback_omit_for_level2,expected_frames_length,expected_frame_names",
     (
-        # fmt: off
-        [True, 3, ["test_rich_traceback_omit_optional_local_flag", "level1", "level3"]],
-        [False, 4, ["test_rich_traceback_omit_optional_local_flag", "level1", "level2", "level3"]],
-        # fmt: on
+            # fmt: off
+            [True, 3, ["test_rich_traceback_omit_optional_local_flag", "level1", "level3"]],
+            [False, 4, ["test_rich_traceback_omit_optional_local_flag", "level1", "level2", "level3"]],
+            # fmt: on
     ),
 )
 def test_rich_traceback_omit_optional_local_flag(
-    rich_traceback_omit_for_level2: bool,
-    expected_frames_length: int,
-    expected_frame_names: List[str],
+        rich_traceback_omit_for_level2: bool,
+        expected_frames_length: int,
+        expected_frame_names: List[str],
 ):
     def level1():
         return level2()
@@ -342,6 +342,41 @@ def test_rich_traceback_omit_optional_local_flag(
         assert len(frames) == expected_frames_length
         frame_names = [f.name for f in frames]
         assert frame_names == expected_frame_names
+
+
+
+def test_custom_exception_handler(capsys):
+    def custom_exception_handler(exc_type, exc_value, exc_traceback):
+        """
+        Handle uncaught exceptions in a custom handler.
+        """
+        console = Console()
+        # Format the traceback using the rich library
+        tb = traceback.TracebackException.from_exception(exc_value, exc_traceback)
+        tb_str = "\n".join(tb.format(chain=True))
+
+        # Print the formatted traceback to the console using rich
+        console.print(tb_str, style="bold red")
+
+        # Call the default exception handler to print the traceback to stderr
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+    # Set the custom exception handler as the default handler for all threads
+    sys.excepthook = custom_exception_handler
+
+    def raise_exception():
+        raise ValueError("test exception")
+
+    with pytest.raises(ValueError):
+        # Call a function that raises an exception
+        raise_exception()
+
+    # Capture the output of the custom exception handler
+    captured = capsys.readouterr()
+
+    # Check that the output contains the formatted traceback
+    assert "ValueError: test exception" in captured.out
+    assert "def raise_exception():" in captured.out
 
 
 if __name__ == "__main__":  # pragma: no cover
