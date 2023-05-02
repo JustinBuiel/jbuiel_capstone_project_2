@@ -119,6 +119,29 @@ def install(
             )
         )
 
+        import sys
+        import traceback
+
+        def custom_exception_handler(exc_type, exc_value, exc_traceback):
+            """
+            Handle uncaught exceptions in a custom way.
+            """
+            # Format the traceback using the rich library
+            tb = traceback.TracebackException.from_exception(exc_value, exc_traceback)
+            tb_str = "\n".join(tb.format(chain=True))
+
+            # Log the exception to a file or send an alert
+            # ...
+
+            # Print the formatted traceback to the console using rich
+            console.print(tb_str, style="bold red")
+
+            # Call the default exception handler to print the traceback to stderr
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
+        # Set the custom exception handler as the default handler for all threads
+        sys.excepthook = custom_exception_handler
+
     def ipy_excepthook_closure(ip: Any) -> None:  # pragma: no cover
         tb_data = {}  # store information about showtraceback call
         default_showtraceback = ip.showtraceback  # keep reference of default traceback
@@ -165,7 +188,7 @@ def install(
         ip = get_ipython()  # type: ignore[name-defined]
         ipy_excepthook_closure(ip)
         return sys.excepthook
-    except Exception:
+    except Exception: # I think problem can be solved here
         # otherwise use default system hook
         old_excepthook = sys.excepthook
         sys.excepthook = excepthook
