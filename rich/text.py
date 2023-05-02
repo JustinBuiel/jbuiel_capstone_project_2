@@ -1192,11 +1192,11 @@ class Text(JupyterMixin):
             lines.extend(new_lines)
         return lines
 
-    def separate(self, width: int) -> Lines:
-        """Fit the text in to given width by chopping in to lines.
+    def separate(self) -> Lines:
+        """Split text into separate lines.
 
                 Args:
-                    width (int): Maximum characters in a line.
+                    None.
 
                 Returns:
                     Lines: Lines container.
@@ -1204,7 +1204,6 @@ class Text(JupyterMixin):
         lines: Lines = Lines()
         append = lines.append
         for line in self.split():
-            line.set_length(width)
             for char in line:
                 append(char)
         return lines
