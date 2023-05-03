@@ -15,11 +15,11 @@ from typing import (
     Union,
 )
 
-from rich._loop import loop_last
+from rich._loop import loop_last   #some package is missing
 from rich._pick import pick_bool
 from rich._wrap import divide_line
 from .align import AlignMethod
-from .cells import cell_len, set_cell_size
+from rich.cells import cell_len, set_cell_size
 from rich.containers import Lines
 from rich.control import strip_control_codes
 from rich.emoji import EmojiVariant

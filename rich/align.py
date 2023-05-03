@@ -7,7 +7,7 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import Literal  # pragma: no cover
 
-from .constrain import Constrain
+from rich.constrain import Constrain
 from .jupyter import JupyterMixin
 from .measure import Measurement
 from .segment import Segment
