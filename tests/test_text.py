@@ -528,6 +528,22 @@ def test_fit():
     assert str(lines[1]) == "Wor"
 
 
+def test_separate():
+    text = Text("Mason")
+    lines = text.separate()
+    assert str(lines[0]) == "M"
+    assert str(lines[1]) == "a"
+    assert str(lines[2]) == "s"
+    assert str(lines[3]) == "o"
+    assert str(lines[4]) == "n"
+    text = Text("")
+    lines = text.separate()
+    with pytest.raises(IndexError):
+        assert str(lines[0])
+
+
+
+
 def test_wrap_tabs():
     text = Text("foo\tbar", justify="left")
     lines = text.wrap(Console(), 4)
