@@ -19,7 +19,7 @@ from rich._loop import loop_last
 from rich._pick import pick_bool
 from rich._wrap import divide_line
 from rich.align import AlignMethod
-from rich.cells import cell_len, set_cell_size
+from .cells import cell_len, set_cell_size
 from rich.containers import Lines
 from rich.control import strip_control_codes
 from rich.emoji import EmojiVariant
