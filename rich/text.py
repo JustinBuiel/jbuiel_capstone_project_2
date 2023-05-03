@@ -15,18 +15,18 @@ from typing import (
     Union,
 )
 
-from ._loop import loop_last
-from ._pick import pick_bool
-from ._wrap import divide_line
-from .align import AlignMethod
-from .cells import cell_len, set_cell_size
-from .containers import Lines
-from .control import strip_control_codes
-from .emoji import EmojiVariant
-from .jupyter import JupyterMixin
-from .measure import Measurement
-from .segment import Segment
-from .style import Style, StyleType
+from rich._loop import loop_last
+from rich._pick import pick_bool
+from rich._wrap import divide_line
+from rich.align import AlignMethod
+from rich.cells import cell_len, set_cell_size
+from rich.containers import Lines
+from rich.control import strip_control_codes
+from rich.emoji import EmojiVariant
+from rich.jupyter import JupyterMixin
+from rich.measure import Measurement
+from rich.segment import Segment
+from rich.style import Style, StyleType
 
 if TYPE_CHECKING:  # pragma: no cover
     from .console import Console, ConsoleOptions, JustifyMethod, OverflowMethod
