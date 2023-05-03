@@ -267,7 +267,7 @@ Rich is maintained with [red]:heart:[/] by [link=https://www.textualize.io]Textu
             message,
             box=box.ROUNDED,
             padding=(1, 2),
-            title="[b red]Capstone Project 13: Test",
+            title="[b red]Capstone Project: Test",
             border_style="bright_blue",
         ),
         justify="center",
