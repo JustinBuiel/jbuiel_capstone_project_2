@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from rich.console import ConsoleRenderable
 
 from . import get_console
-from .segment import Segment
+from rich.segment import Segment
 from .terminal_theme import DEFAULT_TERMINAL_THEME
 
 if TYPE_CHECKING:

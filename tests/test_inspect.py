@@ -161,8 +161,13 @@ def test_inspect_builtin_function_only_python311():
     # On 3.11, the print builtin *does* have a signature, unlike in prior versions
     expected = (
         "╭────────── <built-in function print> ───────────╮\n"
-        "│ def print(*args, sep=' ', end='\\n', file=None, │\n"
-        "│ flush=False):                                  │\n"
+        "│ def print(                                     │\n"
+        "│         *args,                                 │\n"
+        "│         sep=' ',                               │\n"
+        "│         end='\\n',                              │\n"
+        "│         file=None,                             │\n"
+        "│         flush=False                            │\n"  
+        "│ )                                              │\n"
         "│                                                │\n"
         "│ Prints the values to a stream, or to           │\n"
         "│ sys.stdout by default.                         │\n"
@@ -171,7 +176,7 @@ def test_inspect_builtin_function_only_python311():
         "│ inspect(inspect) for options.                  │\n"
         "╰────────────────────────────────────────────────╯\n"
     )
-    assert render(print) == expected
+    assert render(cl) == expected
 
 
 @skip_pypy3

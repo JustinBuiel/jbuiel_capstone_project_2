@@ -27,6 +27,7 @@ class ColorTriplet(NamedTuple):
         red, green, blue = self
         return f"rgb({red},{green},{blue})"
 
+
     @property
     def normalized(self) -> Tuple[float, float, float]:
         """Convert components into floats between 0 and 1.
