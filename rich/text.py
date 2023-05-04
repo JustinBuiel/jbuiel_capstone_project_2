@@ -1208,6 +1208,38 @@ class Text(JupyterMixin):
                 append(char)
         return lines
 
+    def separate(self, width: int) -> Lines:
+        """Fit the text in to given width by chopping in to lines.
+
+                Args:
+                    width (int): Maximum characters in a line.
+
+                Returns:
+                    Lines: Lines container.
+                """
+        lines: Lines = Lines()
+        empty_string = ''
+        append = lines.append
+        count = 0
+        if self.split() is None:
+            return lines
+        for line in self.split():
+            for char in line:
+                if count <= width:
+                    count += 1
+                    empty_string += str(char)
+                if count == width:
+                    empty_text = Text()
+                    empty_text.append(empty_string)
+                    append(empty_text)
+                    count = 0
+                    empty_string = ''
+        if count != 0:
+            empty_text = Text()
+            empty_text.append(empty_string)
+            append(empty_text)
+        return lines
+
     def fit(self, width: int) -> Lines:
         """Fit the text in to given width by chopping in to lines.
 

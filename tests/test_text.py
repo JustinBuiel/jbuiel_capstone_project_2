@@ -530,14 +530,19 @@ def test_fit():
 
 def test_separate():
     text = Text("Mason")
-    lines = text.separate()
+    lines = text.separate(1)
     assert str(lines[0]) == "M"
     assert str(lines[1]) == "a"
     assert str(lines[2]) == "s"
     assert str(lines[3]) == "o"
     assert str(lines[4]) == "n"
+    text = Text("Mason")
+    lines = text.separate(2)
+    assert str(lines[0]) == "Ma"
+    assert str(lines[1]) == "so"
+    assert str(lines[2]) == "n"
     text = Text("")
-    lines = text.separate()
+    lines = text.separate(1)
     with pytest.raises(IndexError):
         assert str(lines[0])
 
